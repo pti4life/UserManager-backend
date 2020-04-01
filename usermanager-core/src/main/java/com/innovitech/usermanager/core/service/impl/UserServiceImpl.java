@@ -38,9 +38,13 @@ public class UserServiceImpl implements UserService {
         userValidator.setEmail(user.getEmail());
         userValidator.setPassword(user.getPassword());
         userValidator.validateAll();
+        User userEntity = userDao.findByEmail(user.getEmail());
+        if (userEntity != null) {
+            throw new CustomException("Ilyen e-mail címmel már van felhasználó", 400);
+        }
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         user.setPassword(encoder.encode(user.getPassword()));
-        User userEntity = ObjectMapperUtils.map(user, User.class);
+        userEntity = ObjectMapperUtils.map(user, User.class);
         userDao.persist(userEntity);
     }
 
@@ -53,14 +57,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void update(UserVO user) {
+        User userEntity = userDao.findByEmail(user.getEmail());
+        if (userEntity != null) {
+            throw new CustomException("Ilyen email címmel már van felhasználó!", 400);
+        }
         String password = user.getPassword();
         String passFromDatabase = userDao.find(user.getId()).getPassword();
-
         if (!password.equals(passFromDatabase)) {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             user.setPassword(encoder.encode(user.getPassword()));
         }
-        User userEntity = ObjectMapperUtils.map(user, User.class);
+        userEntity = ObjectMapperUtils.map(user, User.class);
         userDao.update(userEntity);
     }
 
