@@ -38,10 +38,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getEmail(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().get("email", String.class);
-    }
-
     public String resolveToken(ContainerRequestContext req) {
         List<String> authHeaders = req.getHeaders().get(AUTH_HEADER_KEY);
         if (authHeaders != null && authHeaders.size() > 0) {
